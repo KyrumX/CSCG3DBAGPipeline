@@ -1,4 +1,7 @@
-﻿namespace CSCG3DBAGPipeline;
+﻿using System.Text;
+using CliWrap;
+
+namespace CSCG3DBAGPipeline;
 
 public static class TestFunctions
 {
@@ -31,5 +34,18 @@ public static class TestFunctions
 
         Console.WriteLine("Download done");
         
+    }
+
+    public static async Task TestCommandGit()
+    {
+        var processor = new CityJSONProcessor(
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
+            "",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
+        );
+
+        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+
+        Console.WriteLine("Heyyy");
     }
 }
