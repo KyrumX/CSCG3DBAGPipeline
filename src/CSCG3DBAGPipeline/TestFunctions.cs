@@ -11,14 +11,22 @@ public static class TestFunctions
             "ACELOGO_logo_los.png",
             "cf_mp_pix.png",
             "fridget-overview.jpg",
-            "fridget-pixelated.png"
+            "fridget-pixelated_kaas.png",
+            "fridget-pixelated.png",
         };
 
         foreach (var fileN in items)
         {
-            await downloader.DownloadFile(
-                downloadPath + fileN,
-                fileN);
+            try
+            { 
+                await downloader.DownloadFile(
+                    downloadPath + fileN,
+                    fileN);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
         }
 
         Console.WriteLine("Download done");
