@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="b3dm-tile" Version="0.14.0" />
     <PackageReference Include="CliWrap" Version="3.4.1" />
   </ItemGroup>
 

@@ -2,43 +2,23 @@
 using CliWrap.Buffered;
 using CSCJConverter;
 
-namespace CSCG3DBAGPipeline;
+namespace CSCG3DBAGPipeline.processing;
 
-public class CityJSONProcessor
+public class CityJSONProcessor : Processor
 {
-    private readonly string upgradeFilterFile;
-    private readonly string toGlbFile;
-    private readonly string applyDracoFile;
-    private readonly string workingDirectory;
+    private readonly string _upgradeFilterFile;
+    private readonly string _toGlbFile;
 
     /// <summary>
-    /// Constructor for our CityJSON processor. This class processes CLI commands related to CityJSON.
+    /// Constructor for our CityJSON processor. This class processes commands related to CityJSON.
     /// </summary>
     /// <param name="upgradeFilterFile">Filename of the .bat file which uses cjio to filter/upgrade CityJSON.</param>
     /// <param name="toGlbFile">Filename of the .bat file which converts CityJSON to binary GLB.</param>
-    /// <param name="applyDracoFile">Filename of the .bat file which applies Draco compression to binary GLB.</param>
     /// <param name="workingDir">The path to our working directory, from here we will traverse.</param>
-    public CityJSONProcessor(string upgradeFilterFile, string toGlbFile, string applyDracoFile, string workingDir)
+    public CityJSONProcessor(string upgradeFilterFile, string toGlbFile, string workingDir) : base(workingDir)
     {
-        this.upgradeFilterFile = upgradeFilterFile;
-        this.toGlbFile = toGlbFile;
-        this.applyDracoFile = applyDracoFile;
-        this.workingDirectory = workingDir;
-    }
-
-    /// <summary>
-    /// Build a command, set Validation to None, add arguments (arguments are always strings!), and define the
-    /// .bat file we will run.
-    /// </summary>
-    /// <param name="file">The .bat file that will be used for this command.</param>
-    /// <param name="arguments">The arguments. Arguments are always strings. Array of strings.</param>
-    /// <returns>A (CLI) Command which can be executed or altered</returns>
-    private Command CommandBuilder(string file, string[] arguments)
-    {
-        return Cli.Wrap(file)
-            .WithValidation(CommandResultValidation.None)
-            .WithArguments(arguments)
-            .WithWorkingDirectory(this.workingDirectory);
+        this._upgradeFilterFile = upgradeFilterFile;
+        this._toGlbFile = toGlbFile;
     }
 
     /// <summary>
@@ -52,7 +32,7 @@ public class CityJSONProcessor
     /// TODO: PATH EN FILE SPLITSEN?
     public async Task<CommandResult> FirstStep(string inFilePath, string outFilePath)
     {
-        Command cmd = this.CommandBuilder(this.upgradeFilterFile, new[] {inFilePath, outFilePath});
+        Command cmd = this.CommandBuilder(this._upgradeFilterFile, new[] {inFilePath, outFilePath});
         CommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
@@ -66,7 +46,7 @@ public class CityJSONProcessor
     /// <returns>Task type CommandResult</returns>
     public async Task<CommandResult> SecondStep(string inFilePath, string outFilePath)
     {
-        Command cmd = this.CommandBuilder(this.toGlbFile, new[] {inFilePath, outFilePath});
+        Command cmd = this.CommandBuilder(this._toGlbFile, new[] {inFilePath, outFilePath});
         CommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
@@ -82,8 +62,8 @@ public class CityJSONProcessor
     public void MoveMaaiveldToZero(string inFilePath, string outFilePath)
     {
         // Bouw het path
-        string jsonFilePath = Path.Combine(this.workingDirectory, inFilePath);
-        string outJsonFilePath = Path.Combine(this.workingDirectory, outFilePath);
+        string jsonFilePath = Path.Combine(this._workingDirectory, inFilePath);
+        string outJsonFilePath = Path.Combine(this._workingDirectory, outFilePath);
 
         // Lees JSON als string
         string jsonString = File.ReadAllText(jsonFilePath);
@@ -99,19 +79,5 @@ public class CityJSONProcessor
         
         // Serialiseer terug naar JSON
         cityJSONConverter.Serialize();
-    }
-
-    /// <summary>
-    /// Takes a binary GLB file and applies Draco compression. Uses the specified applyDracoFile, which is a .bat.
-    /// </summary>
-    /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
-    /// <param name="outFilePath">Filename (with extension) used as input, relative to the working directory.</param>
-    /// <returns>Task type CommandResult</returns>
-    public async Task<CommandResult> ApplyDracoCompression(string inFilePath, string outFilePath)
-    {
-        Command cmd = this.CommandBuilder(this.applyDracoFile, new[] { inFilePath, outFilePath });
-        CommandResult res = await cmd.ExecuteBufferedAsync();
-
-        return res;
     }
 }
