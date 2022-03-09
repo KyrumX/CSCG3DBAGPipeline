@@ -1,5 +1,6 @@
 ﻿using CliWrap;
 using CliWrap.Buffered;
+using CSCJConverter;
 
 namespace CSCG3DBAGPipeline;
 
@@ -66,5 +67,34 @@ public class CityJSONProcessor
         CommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
+    }
+    
+    /// <summary>
+    /// Takes a CityJSON 1.1 3D BAG file which has been filtered (LOD2.2 only!) and moves the Z-axis (height) to be
+    /// 0 bound, meaning all features (buildings) will have their ground floor start at 0 meters. This is done by
+    /// using the height of the maaiveld.
+    /// </summary>
+    /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
+    /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
+    public void MoveMaaiveldToZero(string inFilePath, string outFilePath)
+    {
+        // Bouw het path
+        string jsonFilePath = Path.Combine(this.workingDirectory, inFilePath);
+        string outJsonFilePath = Path.Combine(this.workingDirectory, outFilePath);
+
+        // Lees JSON als string
+        string jsonString = File.ReadAllText(jsonFilePath);
+        
+        // Deserialiseer JSON naar CityJSON model / maak converter object
+        CityJSON cityJSONConverter = new CityJSON(jsonString, outJsonFilePath);
+        
+        // Translate maaiveld naar 0
+        cityJSONConverter.TranslateHeightMaaiveld();
+        
+        // Update de het omvattende volume (geographical extent)
+        cityJSONConverter.TransformGeographicalExtentZToZero();
+        
+        // Serialiseer terug naar JSON
+        cityJSONConverter.Serialize();
     }
 }

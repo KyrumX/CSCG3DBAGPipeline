@@ -36,7 +36,7 @@ public static class TestFunctions
         
     }
 
-    public static async Task TestCommandGit()
+    public static async Task TestCommandFirstStep()
     {
         var processor = new CityJSONProcessor(
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
@@ -47,5 +47,22 @@ public static class TestFunctions
         var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
 
         Console.WriteLine("Heyyy");
+    }
+
+    public static async Task TestCommandMaaiveldAndGlb()
+    {
+        
+        var processor = new CityJSONProcessor(
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-glb.bat",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
+        );
+
+        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+
+        processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
+
+        var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+
     }
 }
