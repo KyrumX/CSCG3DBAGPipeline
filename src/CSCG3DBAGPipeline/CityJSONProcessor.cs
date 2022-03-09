@@ -16,6 +16,7 @@ public class CityJSONProcessor
     /// </summary>
     /// <param name="upgradeFilterFile">Filename of the .bat file which uses cjio to filter/upgrade CityJSON.</param>
     /// <param name="toGlbFile">Filename of the .bat file which converts CityJSON to binary GLB.</param>
+    /// <param name="applyDracoFile">Filename of the .bat file which applies Draco compression to binary GLB.</param>
     /// <param name="workingDir">The path to our working directory, from here we will traverse.</param>
     public CityJSONProcessor(string upgradeFilterFile, string toGlbFile, string applyDracoFile, string workingDir)
     {
@@ -31,7 +32,7 @@ public class CityJSONProcessor
     /// </summary>
     /// <param name="file">The .bat file that will be used for this command.</param>
     /// <param name="arguments">The arguments. Arguments are always strings. Array of strings.</param>
-    /// <returns></returns>
+    /// <returns>A (CLI) Command which can be executed or altered</returns>
     private Command CommandBuilder(string file, string[] arguments)
     {
         return Cli.Wrap(file)
@@ -62,7 +63,7 @@ public class CityJSONProcessor
     /// </summary>
     /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
     /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
-    /// <returns></returns>
+    /// <returns>Task type CommandResult</returns>
     public async Task<CommandResult> SecondStep(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this.toGlbFile, new[] {inFilePath, outFilePath});
@@ -100,6 +101,12 @@ public class CityJSONProcessor
         cityJSONConverter.Serialize();
     }
 
+    /// <summary>
+    /// Takes a binary GLB file and applies Draco compression. Uses the specified applyDracoFile, which is a .bat.
+    /// </summary>
+    /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
+    /// <param name="outFilePath">Filename (with extension) used as input, relative to the working directory.</param>
+    /// <returns>Task type CommandResult</returns>
     public async Task<CommandResult> ApplyDracoCompression(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this.applyDracoFile, new[] { inFilePath, outFilePath });
