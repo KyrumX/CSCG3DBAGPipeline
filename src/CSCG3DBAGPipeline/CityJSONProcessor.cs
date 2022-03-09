@@ -8,6 +8,7 @@ public class CityJSONProcessor
 {
     private readonly string upgradeFilterFile;
     private readonly string toGlbFile;
+    private readonly string applyDracoFile;
     private readonly string workingDirectory;
 
     /// <summary>
@@ -16,10 +17,11 @@ public class CityJSONProcessor
     /// <param name="upgradeFilterFile">Filename of the .bat file which uses cjio to filter/upgrade CityJSON.</param>
     /// <param name="toGlbFile">Filename of the .bat file which converts CityJSON to binary GLB.</param>
     /// <param name="workingDir">The path to our working directory, from here we will traverse.</param>
-    public CityJSONProcessor(string upgradeFilterFile, string toGlbFile, string workingDir)
+    public CityJSONProcessor(string upgradeFilterFile, string toGlbFile, string applyDracoFile, string workingDir)
     {
         this.upgradeFilterFile = upgradeFilterFile;
         this.toGlbFile = toGlbFile;
+        this.applyDracoFile = applyDracoFile;
         this.workingDirectory = workingDir;
     }
 
@@ -96,5 +98,13 @@ public class CityJSONProcessor
         
         // Serialiseer terug naar JSON
         cityJSONConverter.Serialize();
+    }
+
+    public async Task<CommandResult> ApplyDracoCompression(string inFilePath, string outFilePath)
+    {
+        Command cmd = this.CommandBuilder(this.applyDracoFile, new[] { inFilePath, outFilePath });
+        CommandResult res = await cmd.ExecuteBufferedAsync();
+
+        return res;
     }
 }
