@@ -11,4 +11,10 @@
     <PackageReference Include="CliWrap" Version="3.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="CSCJConverter, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\lib\CSCJConverter.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
