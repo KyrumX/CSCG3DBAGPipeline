@@ -41,6 +41,7 @@ public static class TestFunctions
         var processor = new CityJSONProcessor(
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
             "",
+            "",
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
         );
 
@@ -55,6 +56,7 @@ public static class TestFunctions
         var processor = new CityJSONProcessor(
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-glb.bat",
+            "",
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
         );
 
@@ -63,6 +65,28 @@ public static class TestFunctions
         processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
 
         var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+
+    }
+    
+    public static async Task TestApplyDraco()
+    {
+        
+        var processor = new CityJSONProcessor(
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-upgrade-filter.bat",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\cjio-glb.bat",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\gltf-transform-draco-edgebreaker.bat",
+            @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
+        );
+
+        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+
+        processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
+
+        var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+
+        var dracores = await processor.ApplyDracoCompression("glb/6229.glb", "draco glb/6229d.glb");
+        
+        Console.WriteLine("Done!");
 
     }
 }
