@@ -2,23 +2,27 @@
 
 namespace CSCG3DBAGPipeline;
 
-public class Downloader
+public class GzipDownloader : AbstractDownloader
 {
     // Zoals geschreven in de remarks dient een HttpClient hergebruikt te worden:
     // (https://docs.microsoft.com/en-us/dotnet/api/system.net.http.httpclient?view=net-6.0#remarks)
-    private static HttpClient _client;
+    private static readonly HttpClient _client;
 
-    private readonly string _outDir ;
-    
-    static Downloader()
+    static GzipDownloader()
     {
-        _client = new HttpClient();
+        HttpClientHandler handler = new HttpClientHandler()
+        {
+            AutomaticDecompression = DecompressionMethods.GZip
+        };
+        _client = new HttpClient(handler);
     }
 
-    public Downloader(string outDir)
+    /// <summary>
+    /// GzipDownloader class.
+    /// </summary>
+    /// <param name="outDir">The output directory.</param>
+    public GzipDownloader(string outDir) : base(outDir)
     {
-        this._outDir = outDir;
-        Directory.CreateDirectory(this._outDir);
     }
 
     /// <summary>
@@ -26,12 +30,12 @@ public class Downloader
     /// </summary>
     /// <param name="fileUrl">The file uri</param>
     /// <param name="saveAs">The name with which the download file will be saved</param>
-    public async Task DownloadFile(string fileUrl, string saveAs)
+    public override async Task DownloadFile(string fileUrl, string saveAs)
     {
         using (var stream = await _client.GetStreamAsync(fileUrl))
         {
             // TODO: Make it check if version of file already exits so that we don't redownload everything (check if file exists)
-            using (var fileStream = new FileStream(this._outDir + "/" + saveAs, FileMode.Create))
+            using (var fileStream = new FileStream(this.OutDir + "/" + saveAs, FileMode.Create))
             {
                 await stream.CopyToAsync(fileStream);
             }
