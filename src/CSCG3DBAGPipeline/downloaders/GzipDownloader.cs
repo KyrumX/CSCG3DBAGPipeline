@@ -35,7 +35,7 @@ public class GzipDownloader : AbstractDownloader
         using (var stream = await _client.GetStreamAsync(fileUrl))
         {
             // TODO: Make it check if version of file already exits so that we don't redownload everything (check if file exists)
-            using (var fileStream = new FileStream(this.OutDir + "/" + saveAs, FileMode.Create))
+            using (var fileStream = new FileStream(Path.Combine(this.OutDir, saveAs), FileMode.Create))
             {
                 await stream.CopyToAsync(fileStream);
             }

@@ -4,7 +4,7 @@ namespace CSCG3DBAGPipeline.processing;
 
 public abstract class Processor
 {
-    private protected readonly string _workingDirectory;
+    internal readonly string _workingDirectory;
     
     private protected Processor(string workingDir)
     {
