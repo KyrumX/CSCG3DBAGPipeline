@@ -6,7 +6,7 @@ public static class TestFunctions
 {
     public static async Task TestDownload()
     {
-        var downloader = new Downloader(@"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\download");
+        var downloader = new GzipDownloader(@"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\download");
         string downloadPath = "https://aaronbeetstra.me/static/images/projects/";
         String[] items = new[]
         {

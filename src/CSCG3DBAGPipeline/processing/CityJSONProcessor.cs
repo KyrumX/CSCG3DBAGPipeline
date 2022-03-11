@@ -10,7 +10,7 @@ public class CityJSONProcessor : Processor
     private readonly string _toGlbFile;
 
     /// <summary>
-    /// Constructor for our CityJSON processor. This class processes commands related to CityJSON.
+    /// Constructor for our CityJSON processor. This class processes functions related to CityJSON.
     /// </summary>
     /// <param name="upgradeFilterFile">Filename of the .bat file which uses cjio to filter/upgrade CityJSON.</param>
     /// <param name="toGlbFile">Filename of the .bat file which converts CityJSON to binary GLB.</param>
