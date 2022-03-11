@@ -26,10 +26,10 @@ public class GzipDownloader : AbstractDownloader
     }
 
     /// <summary>
-    /// Downloads a file from a uri and saves it to our output directory (_outDir)
+    /// Downloads a file from a uri and saves it to our output directory (_outDir).
     /// </summary>
-    /// <param name="fileUrl">The file uri</param>
-    /// <param name="saveAs">The name with which the download file will be saved</param>
+    /// <param name="fileUrl">The file uri.</param>
+    /// <param name="saveAs">The name with which the download file will be saved.</param>
     public override async Task DownloadFile(string fileUrl, string saveAs)
     {
         using (var stream = await _client.GetStreamAsync(fileUrl))

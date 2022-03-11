@@ -8,7 +8,7 @@ public class GLBProcessor : Processor
     private readonly string _applyDracoFile;
     
     /// <summary>
-    /// Constructor for our GLBProcessor. This class processes commands related to GLB.
+    /// Constructor for our GLBProcessor. This class processes functions related to GLB.
     /// </summary>
     /// <param name="applyDracoFile">Filename of the .bat file which applies Draco compression to binary GLB.</param>
     /// <param name="workingDir">The path to our working directory, from here we will traverse.</param>
