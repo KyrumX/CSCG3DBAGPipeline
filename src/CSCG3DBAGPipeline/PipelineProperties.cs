@@ -2,7 +2,7 @@
 
 public class PipelineProperties
 {
-    public IEnumerable<int> Tiles { get; init; }
+    public IEnumerable<int>? Tiles { get; init; }
     public int StartTileNum { get; init; }
     public int LastTileNum { get; init; }
     public string FileWorkingDirectory { get; init; }
@@ -16,6 +16,11 @@ public class PipelineProperties
     public string GLBDirectory { get; init; }
     public string DracoDirectory { get; init; }
     public string B3dmDirectory { get; init; }
+    public bool ClearDownload { get; init; }
+    public bool ClearFiltered { get; init; }
+    public bool ClearMaaiveldCorrected { get; init; }
+    public bool ClearGLB { get; init; }
+    public bool ClearDraco { get; init; }
 
     /// <summary>
     /// Constructor for a a fixed list of tiles.
@@ -32,6 +37,11 @@ public class PipelineProperties
     /// <param name="glbDirectory">Directory, relative to our file working directory, where binary glTF (GLB) will be stored.</param>
     /// <param name="dracoDirectory">Directory, relative to our file working directory, where Draco compressed GLB will be stored.</param>
     /// <param name="b3dmDirectory">Directory, relative to our file working directory, where B3DM will be stored.</param>
+    /// <param name="clearDownloads">Boolean, whether or not a download (from 3D BAG) should be deleted after having been processed.</param>
+    /// <param name="clearFiltered">Boolean, whether or not a filtered CityJSON file should be deleted after having been processed.</param>
+    /// <param name="clearMaaiveld">Boolean, whether or not the maaiveld adjusted CityJSON file should be deleted after having been processed.</param>
+    /// <param name="clearGlb">Boolean, whether or not a binairy gLTF file should be deleted after having been processed.</param>
+    /// <param name="clearDraco">Boolean, whether or not a Draco compressed binary glTF file should be deleted after having been processed.</param>
     public PipelineProperties(
         IEnumerable<int> tiles,
         string upgradeFilterCjioScript,
@@ -44,8 +54,13 @@ public class PipelineProperties
         string maaiveldCorrectCjDirectory = "files/maaiveld",
         string glbDirectory = "files/glb", 
         string dracoDirectory = "files/draco",
-        string b3dmDirectory = "files/b3dm"
-        )
+        string b3dmDirectory = "files/b3dm", 
+        bool clearDownloads = true,
+        bool clearFiltered = true,
+        bool clearMaaiveld = false,
+        bool clearGlb = true,
+        bool clearDraco = true
+    )
     {
         this.Tiles = tiles;
         this.UpgradeFilterCjioScript = upgradeFilterCjioScript;
@@ -59,10 +74,15 @@ public class PipelineProperties
         this.GLBDirectory = glbDirectory;
         this.DracoDirectory = dracoDirectory;
         this.B3dmDirectory = b3dmDirectory;
+        this.ClearDownload = clearDownloads;
+        this.ClearFiltered = clearFiltered;
+        this.ClearMaaiveldCorrected = clearMaaiveld;
+        this.ClearGLB = clearGlb;
+        this.ClearDraco = clearDraco;
         this.StartTileNum = 0;
         this.LastTileNum = this.Tiles.Count();
     }
-    
+
     /// <summary>
     /// Constructor for a range of tiles, ergo start at tile 10 end at tile 20 (inclusive!).
     /// </summary>
@@ -79,6 +99,11 @@ public class PipelineProperties
     /// <param name="glbDirectory">Directory, relative to our file working directory, where binary glTF (GLB) will be stored.</param>
     /// <param name="dracoDirectory">Directory, relative to our file working directory, where Draco compressed GLB will be stored.</param>
     /// <param name="b3dmDirectory">Directory, relative to our file working directory, where B3DM will be stored.</param>
+    /// <param name="clearDownloads">Boolean, whether or not a download (from 3D BAG) should be deleted after having been processed.</param>
+    /// <param name="clearFiltered">Boolean, whether or not a filtered CityJSON file should be deleted after having been processed.</param>
+    /// <param name="clearMaaiveld">Boolean, whether or not the maaiveld adjusted CityJSON file should be deleted after having been processed.</param>
+    /// <param name="clearGlb">Boolean, whether or not a binairy gLTF file should be deleted after having been processed.</param>
+    /// <param name="clearDraco">Boolean, whether or not a Draco compressed binary glTF file should be deleted after having been processed.</param>
     public PipelineProperties(
         int startTileNum,
         int lastTileNum,
@@ -92,7 +117,12 @@ public class PipelineProperties
         string maaiveldCorrectCjDirectory = "files/maaiveld",
         string glbDirectory = "files/glb", 
         string dracoDirectory = "files/draco",
-        string b3dmDirectory = "files/b3dm"
+        string b3dmDirectory = "files/b3dm",
+        bool clearDownloads = true,
+        bool clearFiltered = true,
+        bool clearMaaiveld = false,
+        bool clearGlb = true,
+        bool clearDraco = true
     )
     {
         this.StartTileNum = startTileNum;
@@ -109,5 +139,10 @@ public class PipelineProperties
         this.GLBDirectory = glbDirectory;
         this.DracoDirectory = dracoDirectory;
         this.B3dmDirectory = b3dmDirectory;
+        this.ClearDownload = clearDownloads;
+        this.ClearFiltered = clearFiltered;
+        this.ClearMaaiveldCorrected = clearMaaiveld;
+        this.ClearGLB = clearGlb;
+        this.ClearDraco = clearDraco;
     }
 }

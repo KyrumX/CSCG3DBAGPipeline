@@ -17,7 +17,7 @@ public class Pipeline
     public Pipeline(PipelineProperties properties)
     {
         this._properties = properties;
-        this._downloader = new GzipDownloader(Path.Combine(properties.FileWorkingDirectory, properties.CJ3DBAGDirectory));
+        this._downloader = new GzipDownloader(properties.FileWorkingDirectory);
         this._cityJsonProcessor = new CityJSONProcessor(
             properties.UpgradeFilterCjioScript,
             properties.ConvertToGLBScript,
@@ -36,26 +36,32 @@ public class Pipeline
         {
             int tile = this._properties.Tiles is null ? i : this._properties.Tiles.ElementAt(i);
             string cityJsonFile = $"{tile.ToString()}.json";
+            string downloadPath = Path.Combine(_properties.CJ3DBAGDirectory, cityJsonFile);
             Console.WriteLine($"\n Now starting on {tile.ToString()}.");
             
+            // Bijhouden welke files achteraf weer verwijderd dienen te worden
+            IList<string> toBeDeletedFiles = new List<string>();
+
             // Download 3D BAG CityJSON bestand
             string downloadUri = String.Format(this._properties.Base3DBAGUri, cityJsonFile);
             bool downloadRes = await this.Download(downloadUri, cityJsonFile);
 
             if (downloadRes == false) continue;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has finished downloading from 3DBAG.");
+            if (_properties.ClearDownload) toBeDeletedFiles.Add(downloadPath);
 
             // Gebruik cjio om bestand bij te werken naar CityJSON 1.1, filter onnodig detailniveau's en attributen
             var firstCjPath = Path.Combine(this._properties.CJ3DBAGDirectory, cityJsonFile);
             var firstCjOutPath = Path.Combine(this._properties.CJUpgradedFilteredDirectory,
                 String.Format("filtered_{0}.json", tile.ToString()));
             bool firstCjRes = await this.ExecuteCommandAsyncAwait(
-                this._cityJsonProcessor.FirstStep,
+                this._cityJsonProcessor.FilterCityJSON,
                 firstCjPath,
                 firstCjOutPath);
 
             if (firstCjRes == false) continue;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has been upgraded and filtered.");
+            if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjPath);
 
             // Gebruik CS-CityJSON-converter om features aan het maaiveld aan te passen (inclusief bounding box)
             var maaiveldOutPath = Path.Combine(this._properties.MaaiveldCorrectCJDirectory,
@@ -67,17 +73,19 @@ public class Pipeline
 
             if (maaiveldMoveRes == false) continue;
             Console.WriteLine($"CityJSON tile {tile.ToString()} features have adjusted based on the Maaiveld.");
+            if (_properties.ClearMaaiveldCorrected) toBeDeletedFiles.Add(maaiveldOutPath);
 
             // Gebruik cjio om CityJSON naar binaire glTF om te zetten
             var glbOutPath = Path.Combine(this._properties.GLBDirectory,
                 String.Format("{0}.glb", tile.ToString()));
             bool glbConvertRes = await this.ExecuteCommandAsyncAwait(
-                this._cityJsonProcessor.SecondStep,
+                this._cityJsonProcessor.ConvertToGLB,
                 maaiveldOutPath,
                 glbOutPath);
 
             if (glbConvertRes == false) continue;
             Console.WriteLine($"CityJSON tile {tile.ToString()} has been converted to a binary glTF file.");
+            if (_properties.ClearGLB) toBeDeletedFiles.Add(glbOutPath);
 
             // Gebruik glTF Transform om binaire glTF te comprimeren (Draco)
             var glbDracoOutPath = Path.Combine(this._properties.DracoDirectory,
@@ -89,6 +97,7 @@ public class Pipeline
 
             if (dracoCompressionRes == false) continue;
             Console.WriteLine($"Binary glTF tile {tile.ToString()} has been compressed using Draco.");
+            if (_properties.ClearDraco) toBeDeletedFiles.Add(glbDracoOutPath);
 
             // Gebruik B3DM Tile CS om ons glTF bestand in een B3DM te zetten
             var b3dmOutPath = Path.Combine(this._properties.B3dmDirectory,
@@ -97,7 +106,17 @@ public class Pipeline
 
             if (b3dmRes == false) continue;
             Console.WriteLine($"Draco compressed binary glTF tile {tile.ToString()} has been converted to a B3DM file.");
+            
+            // Opruimen (verwijder bestanden welke niet langer nodig zijn)
+            this.DeleteUsedFiles(toBeDeletedFiles);
+            Console.WriteLine($"Tile {tile.ToString()} has been successfully converted!");
         }
+    }
+
+    private void DeleteUsedFiles(IList<string> toBeDeletedFiles)
+    {
+        FileHelpers.DeleteFiles(toBeDeletedFiles, workingDir: this._properties.FileWorkingDirectory);
+        //TODO: Logging if a file wasn't deleted?
     }
 
     /// <summary>

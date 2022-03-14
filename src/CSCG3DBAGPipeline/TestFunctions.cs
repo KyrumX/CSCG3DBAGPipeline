@@ -43,7 +43,7 @@ public static class TestFunctions
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
         );
 
-        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+        var res = await processor.FilterCityJSON("download/6229.json", "filtered/6229.json");
 
         Console.WriteLine("Heyyy");
     }
@@ -57,11 +57,11 @@ public static class TestFunctions
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline"
         );
 
-        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+        var res = await processor.FilterCityJSON("download/6229.json", "filtered/6229.json");
 
         processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
 
-        var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+        var glbres = await processor.ConvertToGLB("moved/6229.json", "glb/6229.glb");
 
     }
     
@@ -74,11 +74,11 @@ public static class TestFunctions
             workingDir
         );
 
-        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+        var res = await processor.FilterCityJSON("download/6229.json", "filtered/6229.json");
 
         processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
 
-        var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+        var glbres = await processor.ConvertToGLB("moved/6229.json", "glb/6229.glb");
 
         var glbProcessor = new GLBProcessor(
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\gltf-transform-draco-edgebreaker.bat",
@@ -98,11 +98,11 @@ public static class TestFunctions
             workingDir
         );
 
-        var res = await processor.FirstStep("download/6229.json", "filtered/6229.json");
+        var res = await processor.FilterCityJSON("download/6229.json", "filtered/6229.json");
 
         processor.MoveMaaiveldToZero("filtered/6229.json", "moved/6229.json");
 
-        var glbres = await processor.SecondStep("moved/6229.json", "glb/6229.glb");
+        var glbres = await processor.ConvertToGLB("moved/6229.json", "glb/6229.glb");
 
         var glbProcessor = new GLBProcessor(
             @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\gltf-transform-draco-edgebreaker.bat",
