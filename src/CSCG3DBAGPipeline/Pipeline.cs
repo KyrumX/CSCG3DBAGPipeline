@@ -36,7 +36,7 @@ public class Pipeline
         {
             int tile = this._properties.Tiles is null ? i : this._properties.Tiles.ElementAt(i);
             string cityJsonFile = $"{tile.ToString()}.json";
-            string downloadPath = Path.Combine(_properties.CJ3DBAGDirectory, cityJsonFile);
+            string downloadPath = Path.Combine(_properties.DownloadDirectory, cityJsonFile);
             Console.WriteLine($"\n Now starting on {tile.ToString()}.");
             
             // Bijhouden welke files achteraf weer verwijderd dienen te worden
@@ -52,7 +52,7 @@ public class Pipeline
 
             // Gebruik cjio om bestand bij te werken naar CityJSON 1.1, filter onnodig detailniveau's en attributen
             var firstCjPath = downloadPath;
-            var firstCjOutPath = Path.Combine(this._properties.CJUpgradedFilteredDirectory,
+            var firstCjOutPath = Path.Combine(this._properties.FilteredDirectory,
                 String.Format("filtered_{0}.json", tile.ToString()));
             bool firstCjRes = await this.ExecuteCommandAsyncAwait(
                 this._cityJsonProcessor.FilterCityJSON,
@@ -64,7 +64,7 @@ public class Pipeline
             if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjPath);
 
             // Gebruik CS-CityJSON-converter om features aan het maaiveld aan te passen (inclusief bounding box)
-            var maaiveldOutPath = Path.Combine(this._properties.MaaiveldCorrectCJDirectory,
+            var maaiveldOutPath = Path.Combine(this._properties.MaaiveldAdjustedFeaturesDirectory,
                 String.Format("moved_{0}.json", tile.ToString()));
             bool maaiveldMoveRes = this.ExecuteStep(
                 this._cityJsonProcessor.MoveMaaiveldToZero,
