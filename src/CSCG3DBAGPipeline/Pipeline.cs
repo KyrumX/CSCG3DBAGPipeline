@@ -55,7 +55,7 @@ public class Pipeline
             var firstCjOutPath = Path.Combine(this._properties.CJUpgradedFilteredDirectory,
                 String.Format("filtered_{0}.json", tile.ToString()));
             bool firstCjRes = await this.ExecuteCommandAsyncAwait(
-                this._cityJsonProcessor.FirstStep,
+                this._cityJsonProcessor.FilterCityJSON,
                 firstCjPath,
                 firstCjOutPath);
 
@@ -79,7 +79,7 @@ public class Pipeline
             var glbOutPath = Path.Combine(this._properties.GLBDirectory,
                 String.Format("{0}.glb", tile.ToString()));
             bool glbConvertRes = await this.ExecuteCommandAsyncAwait(
-                this._cityJsonProcessor.SecondStep,
+                this._cityJsonProcessor.ConvertToGLB,
                 maaiveldOutPath,
                 glbOutPath);
 
