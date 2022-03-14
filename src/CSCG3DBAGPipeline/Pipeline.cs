@@ -44,14 +44,14 @@ public class Pipeline
 
             // Download 3D BAG CityJSON bestand
             string downloadUri = String.Format(this._properties.Base3DBAGUri, cityJsonFile);
-            bool downloadRes = await this.Download(downloadUri, cityJsonFile);
+            bool downloadRes = await this.Download(downloadUri, downloadPath);
 
             if (downloadRes == false) continue;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has finished downloading from 3DBAG.");
             if (_properties.ClearDownload) toBeDeletedFiles.Add(downloadPath);
 
             // Gebruik cjio om bestand bij te werken naar CityJSON 1.1, filter onnodig detailniveau's en attributen
-            var firstCjPath = Path.Combine(this._properties.CJ3DBAGDirectory, cityJsonFile);
+            var firstCjPath = downloadPath;
             var firstCjOutPath = Path.Combine(this._properties.CJUpgradedFilteredDirectory,
                 String.Format("filtered_{0}.json", tile.ToString()));
             bool firstCjRes = await this.ExecuteCommandAsyncAwait(
