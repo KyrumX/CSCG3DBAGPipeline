@@ -33,15 +33,20 @@ public class Pipeline
     /// </summary>
     public async Task Process()
     {
+                    
+        // Bijhouden welke files achteraf weer verwijderd dienen te worden
+        IList<string> toBeDeletedFiles = new List<string>();
+        
         for (int i = this._properties.StartTileNum; i < this._properties.LastTileNum; i++)
         {
+            // Opruimen, verwijder bestanden welke niet langer nodig zijn (doen aan het begin voor als continue wordt gebruikt)
+            this.DeleteUsedFiles(toBeDeletedFiles);
+            toBeDeletedFiles.Clear();
+            
             int tile = this._properties.Tiles is null ? i : this._properties.Tiles.ElementAt(i);
             string cityJsonFile = $"{tile.ToString()}.json";
             string downloadPath = Path.Combine(_properties.DownloadDirectory, cityJsonFile);
             Console.WriteLine($"\n Now starting on {tile.ToString()}.");
-            
-            // Bijhouden welke files achteraf weer verwijderd dienen te worden
-            IList<string> toBeDeletedFiles = new List<string>();
 
             // Download 3D BAG CityJSON bestand
             string downloadUri = String.Format(this._properties.Base3DBAGUri, cityJsonFile);
@@ -73,7 +78,7 @@ public class Pipeline
                 maaiveldOutPath);
 
             if (maaiveldMoveRes == false) continue;
-            Console.WriteLine($"CityJSON tile {tile.ToString()} features have adjusted based on the Maaiveld.");
+            Console.WriteLine($"CityJSON tile {tile.ToString()} features have been adjusted based on the Maaiveld.");
             if (_properties.ClearMaaiveldCorrected) toBeDeletedFiles.Add(maaiveldOutPath);
 
             // Gebruik cjio om CityJSON naar binaire glTF om te zetten
@@ -107,11 +112,11 @@ public class Pipeline
 
             if (b3dmRes == false) continue;
             Console.WriteLine($"Draco compressed binary glTF tile {tile.ToString()} has been converted to a B3DM file.");
-            
-            // Opruimen (verwijder bestanden welke niet langer nodig zijn)
-            this.DeleteUsedFiles(toBeDeletedFiles);
             Console.WriteLine($"Tile {tile.ToString()} has been successfully converted!");
         }
+                    
+        // Zorg dat echt alle files weg zijn
+        this.DeleteUsedFiles(toBeDeletedFiles);
     }
 
     private void DeleteUsedFiles(IList<string> toBeDeletedFiles)
@@ -192,11 +197,6 @@ public class Pipeline
 
     // LogFailure en DeleteFile besprekenen voor verdere implementatie
     private void LogFailure()
-    {
-        
-    }
-
-    private void DeleteFile()
     {
         
     }
