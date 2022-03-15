@@ -1,6 +1,7 @@
 ﻿using CliWrap;
 using CliWrap.Buffered;
 using CSCG3DBAGPipeline.processing;
+using Serilog;
 
 namespace CSCG3DBAGPipeline;
 
@@ -140,8 +141,7 @@ public class Pipeline
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            // TODO: log
+            Log.Error(e, $"Encountered an error while downloading tile {filename}");
             return false;
         }
 
@@ -166,7 +166,7 @@ public class Pipeline
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Log.Error(e, $"Encountered an error while trying to process {inFilePath} using {function.Method.Name}");
             return false;
         }
     }
@@ -186,18 +186,19 @@ public class Pipeline
         try
         {
             BufferedCommandResult res = await function(inFilePath, outFilePath);
+            if (!string.IsNullOrEmpty(res.StandardError))
+            {
+                Log.Error($"Encountered an error while trying to process {inFilePath} using {function.Method.Name}. " +
+                          $"The error occured in a command-line, the following was reported: \n" +
+                          $"Command: {res.StandardOutput} \n" +
+                          $"Error: {res.StandardError}");
+            }
             return FileHelpers.DoesFileExist(this._properties.FileWorkingDirectory, outFilePath);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Log.Error(e, $"Encountered an error while trying to process {inFilePath} using {function.Method.Name}");
             return false;
         }
-    }
-
-    // LogFailure en DeleteFile besprekenen voor verdere implementatie
-    private void LogFailure()
-    {
-        
     }
 }
