@@ -7,23 +7,34 @@ public class PipelineOptions
 {
     // An Enumerable of type int of tiles. Cannot be used when 'Range' set options are being used (--endnum, --startnum).
     private readonly IEnumerable<int>? _tiles;
-    [Option('f', "files", SetName="List", Required = true, HelpText = "List of tile numbers: 1 43 32")]
+    [Option('t', "tiles", SetName="List", Required = true, HelpText = "List of tile numbers: 1 43 32")]
     public IEnumerable<int>? Tiles
     {
         get => _tiles;
-        init => _tiles = value != null && value.Any() ? value : null;
+        init
+        {
+            _tiles = value != null && value.Any() ? value : null;
+            _startIndex = 0;
+            _endIndex = _tiles.Count();
+        }
     }
-    
-    // Number of the first tile. Cannot be used when 'List' set option is in use (--files).
+
+    private readonly int _startIndex;
+    private readonly int _endIndex;
+        
+    // Number of the first tile. Cannot be used as argument when 'List' set option is in use (--files).
     [Option('s', "startnum", SetName = "Range", Required = true, HelpText = "Starting tile number.")]
-    public int StartTileNum { get; init; }
-    // Number of the last tile, is inclusive. Cannot be used when 'List' set option is in use (--files).
-    private readonly int _lastTileNum;
+    public int StartTileNum
+    {
+        get => _startIndex;
+        init => _startIndex = value;
+    }
+    // Number of the last tile, is inclusive. Cannot be used as argument when 'List' set option is in use (--files).
     [Option('e', "endnum", SetName = "Range", Required = true, HelpText = "Final tile number, is inclusive.")]
     public int LastTileNum
     {
-        get => _lastTileNum;
-        init => _lastTileNum = value + 1;
+        get => _endIndex;
+        init => _endIndex = value + 1;
     }
 
     // Path to our file working directory. Here all our other folders (b3dm, draco, downloads) will be placed.

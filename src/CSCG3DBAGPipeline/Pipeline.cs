@@ -1,4 +1,5 @@
-﻿using CliWrap;
+﻿using System.Runtime.CompilerServices;
+using CliWrap;
 using CliWrap.Buffered;
 using CSCG3DBAGPipeline.processing;
 using Serilog;
@@ -34,16 +35,13 @@ public class Pipeline
     /// </summary>
     public async Task Process()
     {
-                    
-        // Bijhouden welke files achteraf weer verwijderd dienen te worden
-        IList<string> toBeDeletedFiles = new List<string>();
-        
+        IList<int> skippedTileNumbers = new List<int>();
         for (int i = this._properties.StartTileNum; i < this._properties.LastTileNum; i++)
         {
-            // Opruimen, verwijder bestanden welke niet langer nodig zijn (doen aan het begin voor als continue wordt gebruikt)
-            this.DeleteUsedFiles(toBeDeletedFiles);
-            toBeDeletedFiles.Clear();
+            // Bijhouden welke files achteraf weer verwijderd dienen te worden
+            IList<string> toBeDeletedFiles = new List<string>();
             
+            // Basale setup
             int tile = this._properties.Tiles is null ? i : this._properties.Tiles.ElementAt(i);
             string cityJsonFile = $"{tile.ToString()}.json";
             string downloadPath = Path.Combine(_properties.DownloadDirectory, cityJsonFile);
@@ -53,7 +51,7 @@ public class Pipeline
             string downloadUri = String.Format(this._properties.Base3DBAGUri, cityJsonFile);
             bool downloadRes = await this.Download(downloadUri, downloadPath);
 
-            if (downloadRes == false) continue;
+            if (downloadRes == false) goto SkipAndLog;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has finished downloading from 3DBAG.");
             if (_properties.ClearDownload) toBeDeletedFiles.Add(downloadPath);
 
@@ -66,7 +64,7 @@ public class Pipeline
                 firstCjPath,
                 firstCjOutPath);
 
-            if (firstCjRes == false) continue;
+            if (firstCjRes == false) goto SkipAndLog;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has been upgraded and filtered.");
             if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjPath);
 
@@ -78,7 +76,7 @@ public class Pipeline
                 firstCjOutPath,
                 maaiveldOutPath);
 
-            if (maaiveldMoveRes == false) continue;
+            if (maaiveldMoveRes == false) goto SkipAndLog;
             Console.WriteLine($"CityJSON tile {tile.ToString()} features have been adjusted based on the Maaiveld.");
             if (_properties.ClearMaaiveldCorrected) toBeDeletedFiles.Add(maaiveldOutPath);
 
@@ -90,7 +88,7 @@ public class Pipeline
                 maaiveldOutPath,
                 glbOutPath);
 
-            if (glbConvertRes == false) continue;
+            if (glbConvertRes == false) goto SkipAndLog;
             Console.WriteLine($"CityJSON tile {tile.ToString()} has been converted to a binary glTF file.");
             if (_properties.ClearGLB) toBeDeletedFiles.Add(glbOutPath);
 
@@ -102,7 +100,7 @@ public class Pipeline
                 glbOutPath,
                 glbDracoOutPath);
 
-            if (dracoCompressionRes == false) continue;
+            if (dracoCompressionRes == false) goto SkipAndLog;
             Console.WriteLine($"Binary glTF tile {tile.ToString()} has been compressed using Draco.");
             if (_properties.ClearDraco) toBeDeletedFiles.Add(glbDracoOutPath);
 
@@ -111,19 +109,25 @@ public class Pipeline
                 String.Format("{0}.b3dm", tile.ToString()));
             bool b3dmRes = this.ExecuteStep(this._glbProcessor.ToBatched3DModel,glbDracoOutPath, b3dmOutPath);
 
-            if (b3dmRes == false) continue;
+            if (b3dmRes == false) goto SkipAndLog;
             Console.WriteLine($"Draco compressed binary glTF tile {tile.ToString()} has been converted to a B3DM file.");
+            // Ruim bestanden op
+            this.DeleteUsedFiles(toBeDeletedFiles);
             Console.WriteLine($"Tile {tile.ToString()} has been successfully converted!");
+            continue;
+
+            SkipAndLog:
+                // Niet vergeten op te ruimen na een skip
+                skippedTileNumbers.Add(tile);
+                this.DeleteUsedFiles(toBeDeletedFiles);
         }
-                    
-        // Zorg dat echt alle files weg zijn
-        this.DeleteUsedFiles(toBeDeletedFiles);
+        string skippedTileNumbersString = string.Join( ", ", skippedTileNumbers);
+        Log.Warning($"Finished. The following tiles have not been processed for various reasons: {skippedTileNumbersString}");
     }
 
     private void DeleteUsedFiles(IList<string> toBeDeletedFiles)
     {
         FileHelpers.DeleteFiles(toBeDeletedFiles, workingDir: this._properties.FileWorkingDirectory);
-        //TODO: Logging if a file wasn't deleted?
     }
 
     /// <summary>
