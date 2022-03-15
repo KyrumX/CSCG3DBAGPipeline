@@ -114,4 +114,31 @@ public static class TestFunctions
         
         Console.WriteLine("Done!");
     }
+
+    public static async Task hello()
+    {
+        PipelineOptions pipelineOptions = new PipelineOptions()
+        {
+            StartTileNum = 1,
+            LastTileNum = 3,
+            FileWorkingDirectory = @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline",
+            UpgradeFilterCjioScript = @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\files\cjio-upgrade-filter.bat",
+            ConvertToGLBScript = @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\files\cjio-glb.bat",
+            ApplyDracoScript = @"E:\Hogeschool Rotterdam\Afstuderen CityGIS\Projects\CSCG3DBAGPipeline\files\gltf-transform-draco-edgebreaker.bat",
+            Base3DBAGUri = "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_{0}",
+            DownloadDirectory = @"files\downloads",
+            FilteredDirectory = @"files\filtered",
+            MaaiveldAdjustedFeaturesDirectory = @"files\maaiveld",
+            GLBDirectory = @"files\glb",
+            DracoDirectory = @"files\draco",
+            B3dmDirectory = @"files\b3dm",
+            ClearDownload = true,
+            ClearFiltered = true,
+            ClearMaaiveldCorrected = false,
+            ClearDraco = true,
+            ClearGLB = true
+        };
+        Pipeline pipeline = new Pipeline(pipelineOptions);
+        await pipeline.Process();
+    }
 }
