@@ -1,26 +1,28 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
+using CommandLine;
 using CSCG3DBAGPipeline;
+class Program
+{
+    [Verb("tileset", HelpText = "Generate a TileSet")]
+    public class TilesetOptions
+    {
+        
+    }
+    async static Task Main(string[] args)
+    {
+        // var result = Parser.Default.ParseArguments<PipelineProperties, TilesetOptions>(args)
+        //     .WithParsed<PipelineProperties>(options => Batched3DPipeline(options))
+        //     .WithParsed<TilesetOptions>(options => Console.WriteLine("222"))
+        //     .WithNotParsed(errors => {});
+        var result = await Parser.Default.ParseArguments<PipelineOptions, TilesetOptions>(args)
+            .WithParsedAsync<PipelineOptions>(Batched3DPipeline).ConfigureAwait(false);
 
-Console.WriteLine("Hello, World!");
+    }
 
-PipelineProperties properties = new PipelineProperties(
-    new[] { 6227, 6228, 6229 },
-    @"E:\path\to\cjio-upgrade-filter.bat",
-    @"E:\path\to\cjio-glb.bat",
-    @"E:\path\to\gltf-transform-draco-edgebreaker.bat",
-    @"E:\path\to\CSCG3DBAGPipeline",
-    "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_{0}"
-);
-
-PipelineProperties propertiesRange = new PipelineProperties(
-    6227,
-    6229,
-    @"E:\path\to\cjio-upgrade-filter.bat",
-    @"E:\path\to\cjio-glb.bat",
-    @"E:\path\to\gltf-transform-draco-edgebreaker.bat",
-    @"E:\path\to\CSCG3DBAGPipeline",
-    "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_{0}"
-);
-
-Pipeline pipeline = new Pipeline(propertiesRange); 
-await pipeline.Process();
+    private static async Task Batched3DPipeline(PipelineOptions ops)
+    {
+        Pipeline pipeline = new Pipeline(ops);
+        await pipeline.Process();
+    }
+}

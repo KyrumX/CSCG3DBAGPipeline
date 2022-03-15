@@ -1,4 +1,4 @@
-venv\Scripts\activate && ^
+files\venvs\pyenv\Scripts\activate && ^
 cjio %1 ^
 upgrade ^
 lod_filter 2.2 ^

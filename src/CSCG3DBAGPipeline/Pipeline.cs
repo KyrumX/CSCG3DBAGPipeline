@@ -1,4 +1,5 @@
 ﻿using CliWrap;
+using CliWrap.Buffered;
 using CSCG3DBAGPipeline.processing;
 
 namespace CSCG3DBAGPipeline;
@@ -8,13 +9,13 @@ public class Pipeline
     private AbstractDownloader _downloader;
     private CityJSONProcessor _cityJsonProcessor;
     private GLBProcessor _glbProcessor;
-    private PipelineProperties _properties { get; init; }
+    private PipelineOptions _properties { get; init; }
     
     /// <summary>
     /// Constructor of our Pipeline, which downloads 3D BAG CityJSON files and converts them to Batched 3D Model files.
     /// </summary>
     /// <param name="properties">Object containing properties related to the pipeline.</param>
-    public Pipeline(PipelineProperties properties)
+    public Pipeline(PipelineOptions properties)
     {
         this._properties = properties;
         this._downloader = new GzipDownloader(properties.FileWorkingDirectory);
@@ -32,15 +33,20 @@ public class Pipeline
     /// </summary>
     public async Task Process()
     {
+                    
+        // Bijhouden welke files achteraf weer verwijderd dienen te worden
+        IList<string> toBeDeletedFiles = new List<string>();
+        
         for (int i = this._properties.StartTileNum; i < this._properties.LastTileNum; i++)
         {
+            // Opruimen, verwijder bestanden welke niet langer nodig zijn (doen aan het begin voor als continue wordt gebruikt)
+            this.DeleteUsedFiles(toBeDeletedFiles);
+            toBeDeletedFiles.Clear();
+            
             int tile = this._properties.Tiles is null ? i : this._properties.Tiles.ElementAt(i);
             string cityJsonFile = $"{tile.ToString()}.json";
-            string downloadPath = Path.Combine(_properties.CJ3DBAGDirectory, cityJsonFile);
+            string downloadPath = Path.Combine(_properties.DownloadDirectory, cityJsonFile);
             Console.WriteLine($"\n Now starting on {tile.ToString()}.");
-            
-            // Bijhouden welke files achteraf weer verwijderd dienen te worden
-            IList<string> toBeDeletedFiles = new List<string>();
 
             // Download 3D BAG CityJSON bestand
             string downloadUri = String.Format(this._properties.Base3DBAGUri, cityJsonFile);
@@ -52,7 +58,7 @@ public class Pipeline
 
             // Gebruik cjio om bestand bij te werken naar CityJSON 1.1, filter onnodig detailniveau's en attributen
             var firstCjPath = downloadPath;
-            var firstCjOutPath = Path.Combine(this._properties.CJUpgradedFilteredDirectory,
+            var firstCjOutPath = Path.Combine(this._properties.FilteredDirectory,
                 String.Format("filtered_{0}.json", tile.ToString()));
             bool firstCjRes = await this.ExecuteCommandAsyncAwait(
                 this._cityJsonProcessor.FilterCityJSON,
@@ -64,7 +70,7 @@ public class Pipeline
             if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjPath);
 
             // Gebruik CS-CityJSON-converter om features aan het maaiveld aan te passen (inclusief bounding box)
-            var maaiveldOutPath = Path.Combine(this._properties.MaaiveldCorrectCJDirectory,
+            var maaiveldOutPath = Path.Combine(this._properties.MaaiveldAdjustedFeaturesDirectory,
                 String.Format("moved_{0}.json", tile.ToString()));
             bool maaiveldMoveRes = this.ExecuteStep(
                 this._cityJsonProcessor.MoveMaaiveldToZero,
@@ -72,7 +78,7 @@ public class Pipeline
                 maaiveldOutPath);
 
             if (maaiveldMoveRes == false) continue;
-            Console.WriteLine($"CityJSON tile {tile.ToString()} features have adjusted based on the Maaiveld.");
+            Console.WriteLine($"CityJSON tile {tile.ToString()} features have been adjusted based on the Maaiveld.");
             if (_properties.ClearMaaiveldCorrected) toBeDeletedFiles.Add(maaiveldOutPath);
 
             // Gebruik cjio om CityJSON naar binaire glTF om te zetten
@@ -106,11 +112,11 @@ public class Pipeline
 
             if (b3dmRes == false) continue;
             Console.WriteLine($"Draco compressed binary glTF tile {tile.ToString()} has been converted to a B3DM file.");
-            
-            // Opruimen (verwijder bestanden welke niet langer nodig zijn)
-            this.DeleteUsedFiles(toBeDeletedFiles);
             Console.WriteLine($"Tile {tile.ToString()} has been successfully converted!");
         }
+                    
+        // Zorg dat echt alle files weg zijn
+        this.DeleteUsedFiles(toBeDeletedFiles);
     }
 
     private void DeleteUsedFiles(IList<string> toBeDeletedFiles)
@@ -173,13 +179,13 @@ public class Pipeline
     /// <param name="outFilePath">The output file, relative to the working directory and including extension.</param>
     /// <returns>Boolean whether it was successful (if file was created).</returns>
     private async Task<bool> ExecuteCommandAsyncAwait(
-        Func<string, string, Task<CommandResult>> function,
+        Func<string, string, Task<BufferedCommandResult>> function,
         string inFilePath,
         string outFilePath)
     {
         try
         {
-            CommandResult res = await function(inFilePath, outFilePath);
+            BufferedCommandResult res = await function(inFilePath, outFilePath);
             return FileHelpers.DoesFileExist(this._properties.FileWorkingDirectory, outFilePath);
         }
         catch (Exception e)
@@ -191,11 +197,6 @@ public class Pipeline
 
     // LogFailure en DeleteFile besprekenen voor verdere implementatie
     private void LogFailure()
-    {
-        
-    }
-
-    private void DeleteFile()
     {
         
     }

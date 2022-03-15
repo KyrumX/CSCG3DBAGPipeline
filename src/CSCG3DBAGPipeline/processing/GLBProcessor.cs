@@ -23,10 +23,10 @@ public class GLBProcessor : Processor
     /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
     /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
     /// <returns>Task type CommandResult</returns>
-    public async Task<CommandResult> ApplyDracoCompression(string inFilePath, string outFilePath)
+    public async Task<BufferedCommandResult> ApplyDracoCompression(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this._applyDracoFile, new[] { inFilePath, outFilePath });
-        CommandResult res = await cmd.ExecuteBufferedAsync();
+        BufferedCommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
     }

@@ -1,3 +1,3 @@
-venv\Scripts\env\Scripts\activate && ^
+files\venvs\nenv\Scripts\activate && ^
 gltf-transform draco %1 %2 --method edgebreaker && ^
 deactivate
