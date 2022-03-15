@@ -1,4 +1,5 @@
 ﻿using CliWrap;
+using CliWrap.Buffered;
 using CSCG3DBAGPipeline.processing;
 
 namespace CSCG3DBAGPipeline;
@@ -8,13 +9,13 @@ public class Pipeline
     private AbstractDownloader _downloader;
     private CityJSONProcessor _cityJsonProcessor;
     private GLBProcessor _glbProcessor;
-    private PipelineProperties _properties { get; init; }
+    private PipelineOptions _properties { get; init; }
     
     /// <summary>
     /// Constructor of our Pipeline, which downloads 3D BAG CityJSON files and converts them to Batched 3D Model files.
     /// </summary>
     /// <param name="properties">Object containing properties related to the pipeline.</param>
-    public Pipeline(PipelineProperties properties)
+    public Pipeline(PipelineOptions properties)
     {
         this._properties = properties;
         this._downloader = new GzipDownloader(properties.FileWorkingDirectory);
@@ -173,13 +174,13 @@ public class Pipeline
     /// <param name="outFilePath">The output file, relative to the working directory and including extension.</param>
     /// <returns>Boolean whether it was successful (if file was created).</returns>
     private async Task<bool> ExecuteCommandAsyncAwait(
-        Func<string, string, Task<CommandResult>> function,
+        Func<string, string, Task<BufferedCommandResult>> function,
         string inFilePath,
         string outFilePath)
     {
         try
         {
-            CommandResult res = await function(inFilePath, outFilePath);
+            BufferedCommandResult res = await function(inFilePath, outFilePath);
             return FileHelpers.DoesFileExist(this._properties.FileWorkingDirectory, outFilePath);
         }
         catch (Exception e)

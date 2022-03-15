@@ -30,10 +30,10 @@ public class CityJSONProcessor : Processor
     /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
     /// <returns>Task type CommandResult</returns>
     /// TODO: PATH EN FILE SPLITSEN?
-    public async Task<CommandResult> FilterCityJSON(string inFilePath, string outFilePath)
+    public async Task<BufferedCommandResult> FilterCityJSON(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this._upgradeFilterFile, new[] {inFilePath, outFilePath});
-        CommandResult res = await cmd.ExecuteBufferedAsync();
+        BufferedCommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
     }
@@ -44,10 +44,10 @@ public class CityJSONProcessor : Processor
     /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
     /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
     /// <returns>Task type CommandResult</returns>
-    public async Task<CommandResult> ConvertToGLB(string inFilePath, string outFilePath)
+    public async Task<BufferedCommandResult> ConvertToGLB(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this._toGlbFile, new[] {inFilePath, outFilePath});
-        CommandResult res = await cmd.ExecuteBufferedAsync();
+        BufferedCommandResult res = await cmd.ExecuteBufferedAsync();
 
         return res;
     }
