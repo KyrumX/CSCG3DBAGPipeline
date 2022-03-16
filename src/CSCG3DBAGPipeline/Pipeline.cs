@@ -121,8 +121,12 @@ public class Pipeline
                 skippedTileNumbers.Add(tile);
                 this.DeleteUsedFiles(toBeDeletedFiles);
         }
-        string skippedTileNumbersString = string.Join( ", ", skippedTileNumbers);
-        Log.Warning($"Finished. The following tiles have not been processed for various reasons: {skippedTileNumbersString}");
+
+        if (skippedTileNumbers.Any())
+        {
+            string skippedTileNumbersString = string.Join( ", ", skippedTileNumbers);
+            Log.Warning($"Finished. The following tiles have not been processed for various reasons: {skippedTileNumbersString}");   
+        }
     }
 
     private void DeleteUsedFiles(IList<string> toBeDeletedFiles)

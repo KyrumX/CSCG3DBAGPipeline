@@ -13,9 +13,12 @@ public class PipelineOptions
         get => _tiles;
         init
         {
-            _tiles = value != null && value.Any() ? value : null;
-            _startIndex = 0;
-            _endIndex = _tiles.Count();
+            if (value != null && value.Any())
+            {
+                _tiles = value;
+                _startIndex = 0;
+                _endIndex = value.Count();
+            }
         }
     }
 
