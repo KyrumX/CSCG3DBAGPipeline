@@ -193,9 +193,10 @@ public class Pipeline
             if (!string.IsNullOrEmpty(res.StandardError))
             {
                 Log.Error($"Encountered an error while trying to process {inFilePath} using {function.Method.Name}. " +
-                          $"The error occured in a command-line, the following was reported: \n" +
+                          $"The error occurred in a command-line, the following was reported: \n" +
                           $"Command: {res.StandardOutput} \n" +
                           $"Error: {res.StandardError}");
+                return false;
             }
             return FileHelpers.DoesFileExist(this._properties.FileWorkingDirectory, outFilePath);
         }

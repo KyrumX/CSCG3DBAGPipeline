@@ -29,7 +29,6 @@ public class CityJSONProcessor : Processor
     /// <param name="inFilePath">Filename (with extension) used as input, relative to the working directory.</param>
     /// <param name="outFilePath">Filename (with extension) of output file, relative to the working directory.</param>
     /// <returns>Task type CommandResult</returns>
-    /// TODO: PATH EN FILE SPLITSEN?
     public async Task<BufferedCommandResult> FilterCityJSON(string inFilePath, string outFilePath)
     {
         Command cmd = this.CommandBuilder(this._upgradeFilterFile, new[] {inFilePath, outFilePath});
