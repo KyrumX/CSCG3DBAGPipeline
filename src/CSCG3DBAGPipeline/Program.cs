@@ -27,6 +27,10 @@ class Program
 
     }
 
+    /// <summary>
+    /// Method for generating B3DM from 3D BAG CityJSON.
+    /// </summary>
+    /// <param name="ops">Options object: PipelineOptions</param>
     private static async Task Batched3DPipeline(PipelineOptions ops)
     {
         Pipeline pipeline = new Pipeline(ops);
@@ -34,6 +38,10 @@ class Program
         Log.CloseAndFlush();
     }
 
+    /// <summary>
+    /// Method for generating tileset.
+    /// </summary>
+    /// <param name="ops">Options object: TilesetGeneratorOptions</param>
     private static async Task TilesetGenerator(TilesetGeneratorOptions ops)
     {
         TilesetGenerator tilesetGenerator = new TilesetGenerator(ops);

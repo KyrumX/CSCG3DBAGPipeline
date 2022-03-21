@@ -68,4 +68,7 @@ public class TilesetGeneratorOptions
         }
         
     }
+    
+    [Option("version", Required = false, Default = "1.0", HelpText = "Tileset version.")]
+    public string Version { get; init; }
 }

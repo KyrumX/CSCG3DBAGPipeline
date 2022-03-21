@@ -21,9 +21,10 @@ public class TilesetGenerator
         switch (this._options.Type.ToLower())
         {
             default: this._gridTileset = new GridTileset(
-                tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
-                rootGeometricError:(decimal)this._options.RootGeometricError,
-                tileGeometricError:(decimal)this._options.TileGeometricError
+                    version:this._options.Version,
+                    tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
+                    rootGeometricError:(decimal)this._options.RootGeometricError,
+                    tileGeometricError:(decimal)this._options.TileGeometricError
                 );
                 break;
         }
@@ -53,7 +54,10 @@ public class TilesetGenerator
             return Array.Empty<string>();
         }
     }
-
+    
+    /// <summary>
+    /// Add the CityJSON files as tiles to our tileset object.
+    /// </summary>
     public void AddTiles()
     {
         foreach (string file in this._files)
@@ -84,6 +88,10 @@ public class TilesetGenerator
         }
     }
 
+    /// <summary>
+    /// Generate our tileset object, serialize it and return true if no error occurred.
+    /// </summary>
+    /// <returns>Boolean, if true everything went alright, if false something went wrong.</returns>
     public bool SerializeTileset()
     {
         if (this._files.Any())
