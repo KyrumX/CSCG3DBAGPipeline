@@ -1,0 +1,101 @@
+﻿using System.Text.Json;
+using System.Text.RegularExpressions;
+using CSCJConverter;
+using CSCJConverter.tileset;
+using Serilog;
+
+namespace CSCG3DBAGPipeline.tileset;
+
+public class GridTilesetGenerator
+{
+    private readonly TilesetGeneratorOptions _options;
+    private readonly string[] _files;
+    private GridTileset _gridTileset;
+    public GridTilesetGenerator(TilesetGeneratorOptions options)
+    {
+        this._options = options; 
+        Console.WriteLine(_options.CityJSONPath);
+        this._files = this.FilesToBeAdded(this._options.CityJSONPath, this._options.CityJSONFileRegex);
+        this._gridTileset = new GridTileset(
+            tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
+            rootGeometricError:(decimal)this._options.RootGeometricError,
+            tileGeometricError:(decimal)this._options.TileGeometricError
+        );
+    }
+
+    /// <summary>
+    /// Returns an array of string with all file names in a directory matching our regex.
+    /// </summary>
+    /// <param name="pathToFolder">The path to the folder.</param>
+    /// <param name="regex">The regex used for filtering file names.</param>
+    /// <returns>An array containing all the filenames that should be added to the tileset.</returns>
+    private string[] FilesToBeAdded(string @pathToFolder, string @regex)
+    {
+        try
+        {
+            Regex rx = new Regex(this._options.CityJSONFileRegex);
+        
+            // Vind alle files in de directory welke voldoen aan de regex, sla enkel het bestandnaam op (standaard slaat het het gehele path op)
+            string[] files = Directory.EnumerateFiles(pathToFolder).Where(path => rx.Match(Path.GetFileName(path)).Success)
+                .Select(Path.GetFileName).ToArray();
+
+            return files;
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Unable to load/find files: see error message for details.");
+            return Array.Empty<string>();
+        }
+    }
+
+    public void AddTiles()
+    {
+        foreach (string file in this._files)
+        {
+            try
+            {
+                Console.WriteLine($"Now processing {file}...");
+                // Bouw het volledige path
+                string filePath = Path.Combine(this._options.CityJSONPath, file);
+                // Haal het tegel nummer uit de naam van het bestand (pakt standaard eerste group)
+                string tileNum = Regex.Match(file, this._options.TileNumberRegex).Groups[0].Value;
+                // Bouw de B3DM content uri voor deze tileset entry
+                string b3dmPath = String.Format(this._options.B3dmPathFormatString, tileNum.ToString());
+                Console.WriteLine(b3dmPath);
+                // Lees het CityJSON bestand
+                string jsonFile = File.ReadAllText(@filePath);
+                // Pak de geografische omvang
+                double[] geographicalExtent = JsonSerializer.Deserialize<CityJSONModel>(jsonFile).metadata.geographicalExtent;
+                // Voeg de geografische omvang toe aan de tegel met de content URI
+                this._gridTileset.AddTile(geographicalExtent, b3dmPath);
+                
+                Console.WriteLine($"Successfully added {file} to the tileset object.");
+            }
+            catch (Exception e)
+            {
+                Log.Error(e, $"Encountered an error while trying to add {file} to the tileset object!");
+            }
+        }
+    }
+
+    public bool SerializeTileset()
+    {
+        if (this._files.Any())
+        {
+            try
+            {
+                TilesetModel model = this._gridTileset.GenerateGridTileset();
+                File.WriteAllText(Path.Combine(this._options.TilesetOutPath, this._options.TilesetName), JsonSerializer.Serialize<TilesetModel>(model));
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Log.Error(e, "Failed to create a Serialized Tileset file. See log for more information.");
+                return false;
+            }
+        }
+        Log.Error("Unable to generate tileset, no tiles available.");
+        return false;
+    }
+}
