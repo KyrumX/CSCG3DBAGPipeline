@@ -47,4 +47,25 @@ public class TilesetGeneratorOptions
     
     [Option("tileerror", Required = false, Default = 2.3232, HelpText = "Geometric error per tile.")]
     public double TileGeometricError { get; init; }
+
+    private string _type;
+    [Option("type", Required = false, Default = "grid", HelpText = "What type should be used. Supported: 'grid'")]
+    public string Type
+    {
+        get => _type;
+        init
+        {
+            var types = new List<string> { "grid" };
+            if (types.Contains(value))
+            {
+                _type = value;
+            }
+            else
+            {
+                string validTypes = string.Join(", ", types);
+                throw new ArgumentException($"Invalid type provided. Valid types: {validTypes}");
+            }
+        }
+        
+    }
 }

@@ -36,7 +36,7 @@ class Program
 
     private static async Task TilesetGenerator(TilesetGeneratorOptions ops)
     {
-        GridTilesetGenerator tilesetGenerator = new GridTilesetGenerator(ops);
+        TilesetGenerator tilesetGenerator = new TilesetGenerator(ops);
         tilesetGenerator.AddTiles();
         tilesetGenerator.SerializeTileset();
         Log.CloseAndFlush();

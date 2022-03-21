@@ -6,21 +6,27 @@ using Serilog;
 
 namespace CSCG3DBAGPipeline.tileset;
 
-public class GridTilesetGenerator
+public class TilesetGenerator
 {
     private readonly TilesetGeneratorOptions _options;
     private readonly string[] _files;
-    private GridTileset _gridTileset;
-    public GridTilesetGenerator(TilesetGeneratorOptions options)
+    private AbstractTileset _gridTileset;
+    public TilesetGenerator(TilesetGeneratorOptions options)
     {
         this._options = options; 
         Console.WriteLine(_options.CityJSONPath);
         this._files = this.FilesToBeAdded(this._options.CityJSONPath, this._options.CityJSONFileRegex);
-        this._gridTileset = new GridTileset(
-            tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
-            rootGeometricError:(decimal)this._options.RootGeometricError,
-            tileGeometricError:(decimal)this._options.TileGeometricError
-        );
+
+        // Factory voor verschillende types, mocht dat ooit nodig worden:
+        switch (this._options.Type.ToLower())
+        {
+            default: this._gridTileset = new GridTileset(
+                tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
+                rootGeometricError:(decimal)this._options.RootGeometricError,
+                tileGeometricError:(decimal)this._options.TileGeometricError
+                );
+                break;
+        }
     }
 
     /// <summary>
@@ -84,7 +90,7 @@ public class GridTilesetGenerator
         {
             try
             {
-                TilesetModel model = this._gridTileset.GenerateGridTileset();
+                TilesetModel model = this._gridTileset.GenerateTileset();
                 File.WriteAllText(Path.Combine(this._options.TilesetOutPath, this._options.TilesetName), JsonSerializer.Serialize<TilesetModel>(model));
                 return true;
             }
