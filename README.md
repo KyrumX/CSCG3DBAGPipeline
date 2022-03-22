@@ -14,5 +14,26 @@
 
 # Gebruik
 
+## Download tegel 1 tot en met 25 van 3D BAG en zet deze om naar B3DM
+```
+    $ CSCG3DBAGPipeline.exe b3dm -s 1 -e 25 --filterscript "D:\workingdir\files\cjio-upgrade-filter.bat" --glbscript "D:\workingdir\files\cjio-glb.bat" --dracoscript "D:\workingdir\files\gltf-transform-draco-edgebreaker.bat" -u "https://data.3dbag.nl/cityjson/v210908_fd2cee53/3dbag_v210908_fd2cee53_{0}"
+```
+
+## Zet alle CityJSON tegels welke voldoen aan REGEX in directory /files/maaiveld om naar een tileset.json
+```
+    $ CSCG3DBAGPipeline.exe tileset -c "D:\workingdir\files\maaiveld"
+```
+
+## Voeg nieuwe CityJSON tegels (in /files/morecj) toe aan tileset.json
+```
+    $ CSCG3DBAGPipeline.exe tileset -c "D:\workingdir\files\morecj" -n "appenedtileset.json" -i "D:\workingdir\tileset.json"
+```
 
 ## Opmerkingen
+
+Standaard regex selecteer bestanden in het formaat `moved_{number}.json`. Eigen regex kan worden gebruikt: `--cityjsonregex`
+
+Gebruik onderstaande commando om alle opties te zien:
+```
+    $ CSCG3DBAGPipeline.exe
+```
