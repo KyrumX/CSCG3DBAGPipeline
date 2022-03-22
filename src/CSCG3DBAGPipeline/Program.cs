@@ -2,15 +2,11 @@
 
 using CommandLine;
 using CSCG3DBAGPipeline;
+using CSCG3DBAGPipeline.tileset;
 using Serilog;
 
 class Program
 {
-    [Verb("tileset", HelpText = "Generate a TileSet")]
-    public class TilesetOptions
-    {
-        
-    }
     public static async Task Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()
@@ -22,20 +18,35 @@ class Program
                 retainedFileCountLimit: null,
                 rollOnFileSizeLimit: true)
             .CreateLogger();
-        
-        // var result = Parser.Default.ParseArguments<PipelineProperties, TilesetOptions>(args)
-        //     .WithParsed<PipelineProperties>(options => Batched3DPipeline(options))
-        //     .WithParsed<TilesetOptions>(options => Console.WriteLine("222"))
-        //     .WithNotParsed(errors => {});
-        var result = await Parser.Default.ParseArguments<PipelineOptions, TilesetOptions>(args)
-            .WithParsedAsync<PipelineOptions>(Batched3DPipeline).ConfigureAwait(false);
+
+        await Parser.Default.ParseArguments<PipelineOptions, TilesetGeneratorOptions>(args)
+            .MapResult(
+                (PipelineOptions opts) => Batched3DPipeline(opts),
+                (TilesetGeneratorOptions opts) => TilesetGenerator(opts),
+                errs => Task.FromResult(0));
 
     }
 
+    /// <summary>
+    /// Method for generating B3DM from 3D BAG CityJSON.
+    /// </summary>
+    /// <param name="ops">Options object: PipelineOptions</param>
     private static async Task Batched3DPipeline(PipelineOptions ops)
     {
         Pipeline pipeline = new Pipeline(ops);
         await pipeline.Process();
+        Log.CloseAndFlush();
+    }
+
+    /// <summary>
+    /// Method for generating tileset.
+    /// </summary>
+    /// <param name="ops">Options object: TilesetGeneratorOptions</param>
+    private static async Task TilesetGenerator(TilesetGeneratorOptions ops)
+    {
+        TilesetGenerator tilesetGenerator = new TilesetGenerator(ops);
+        tilesetGenerator.AddTiles();
+        tilesetGenerator.SerializeTileset();
         Log.CloseAndFlush();
     }
 }
