@@ -36,4 +36,6 @@ Standaard regex selecteer bestanden in het formaat `moved_{number}.json`. Eigen 
 Gebruik onderstaande commando om alle opties te zien:
 ```
     $ CSCG3DBAGPipeline.exe
+    $ CSCG3DBAGPipeline.exe b3dm --help
+    $ CSCG3DBAGPipeline.exe tileset --help
 ```
