@@ -10,7 +10,7 @@ public class TilesetGenerator
 {
     private readonly TilesetGeneratorOptions _options;
     private readonly string[] _files;
-    private AbstractTileset _gridTileset;
+    private AbstractTileset _tileset;
     public TilesetGenerator(TilesetGeneratorOptions options)
     {
         this._options = options; 
@@ -18,16 +18,7 @@ public class TilesetGenerator
         this._files = this.FilesToBeAdded(this._options.CityJSONPath, this._options.CityJSONFileRegex);
 
         // Factory voor verschillende types, mocht dat ooit nodig worden:
-        switch (this._options.Type.ToLower())
-        {
-            default: this._gridTileset = new GridTileset(
-                    version:this._options.Version,
-                    tilesetGeometricError:(decimal)this._options.TilesetGeometricError,
-                    rootGeometricError:(decimal)this._options.RootGeometricError,
-                    tileGeometricError:(decimal)this._options.TileGeometricError
-                );
-                break;
-        }
+        this._tileset = TilesetFactory.FTileset(options);
     }
 
     /// <summary>
@@ -77,7 +68,7 @@ public class TilesetGenerator
                 // Pak de geografische omvang
                 double[] geographicalExtent = JsonSerializer.Deserialize<CityJSONModel>(jsonFile).metadata.geographicalExtent;
                 // Voeg de geografische omvang toe aan de tegel met de content URI
-                this._gridTileset.AddTile(geographicalExtent, b3dmPath);
+                this._tileset.AddTile(geographicalExtent, b3dmPath);
                 
                 Console.WriteLine($"Successfully added {file} to the tileset object.");
             }
@@ -94,12 +85,18 @@ public class TilesetGenerator
     /// <returns>Boolean, if true everything went alright, if false something went wrong.</returns>
     public bool SerializeTileset()
     {
-        if (this._files.Any())
+        if (!this._files.Any())
+        {
+            Log.Error("No new tiles found. Not generating a new tileset.");
+            return false;
+        }
+        if (this._tileset.CountTiles() > 0)
         {
             try
             {
-                TilesetModel model = this._gridTileset.GenerateTileset();
+                TilesetModel model = this._tileset.GenerateTileset();
                 File.WriteAllText(Path.Combine(this._options.TilesetOutPath, this._options.TilesetName), JsonSerializer.Serialize<TilesetModel>(model));
+                Console.WriteLine("Successfully created tileset!");
                 return true;
             }
             catch (Exception e)
@@ -109,7 +106,7 @@ public class TilesetGenerator
                 return false;
             }
         }
-        Log.Error("Unable to generate tileset, no tiles available.");
+        Log.Error("Unable to generate tileset, no (new) tiles available.");
         return false;
     }
 }

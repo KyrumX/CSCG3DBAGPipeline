@@ -69,6 +69,12 @@ public class TilesetGeneratorOptions
         
     }
     
-    [Option("version", Required = false, Default = "1.0", HelpText = "Tileset version.")]
+    [Option("version", Required = false, Default = "1.0", HelpText = "3D Tiles spec version.")]
     public string Version { get; init; }
+    
+    [Option("tilesetversion", Required = false, Default = "1.0", HelpText = "Tileset version.")]
+    public string TilesetVersion { get; init; }
+    
+    [Option('i', "input", Required = false, Default = "", HelpText = "Input tileset.json, if provided new tiles will be appended to this one. Non-supported properties found inside the tileset will be ignored, and thus not appear in the new tileset.")]
+    public string InputTileset { get; init; }
 }
