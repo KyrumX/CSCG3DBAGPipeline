@@ -13,8 +13,7 @@ public class TilesetGenerator
     private AbstractTileset _tileset;
     public TilesetGenerator(TilesetGeneratorOptions options)
     {
-        this._options = options; 
-        Console.WriteLine(_options.CityJSONPath);
+        this._options = options;
         this._files = this.FilesToBeAdded(this._options.CityJSONPath, this._options.CityJSONFileRegex);
 
         // Factory voor verschillende types, mocht dat ooit nodig worden:
@@ -31,7 +30,7 @@ public class TilesetGenerator
     {
         try
         {
-            Regex rx = new Regex(this._options.CityJSONFileRegex);
+            Regex rx = new Regex(regex);
         
             // Vind alle files in de directory welke voldoen aan de regex, sla enkel het bestandnaam op (standaard slaat het het gehele path op)
             string[] files = Directory.EnumerateFiles(pathToFolder).Where(path => rx.Match(Path.GetFileName(path)).Success)
@@ -62,7 +61,6 @@ public class TilesetGenerator
                 string tileNum = Regex.Match(file, this._options.TileNumberRegex).Groups[0].Value;
                 // Bouw de B3DM content uri voor deze tileset entry
                 string b3dmPath = String.Format(this._options.B3dmPathFormatString, tileNum.ToString());
-                Console.WriteLine(b3dmPath);
                 // Lees het CityJSON bestand
                 string jsonFile = File.ReadAllText(@filePath);
                 // Pak de geografische omvang
