@@ -66,7 +66,7 @@ public class Pipeline
 
             if (firstCjRes == false) goto SkipAndLog;
             Console.WriteLine($"CityJSON Tile {tile.ToString()} has been upgraded and filtered.");
-            if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjPath);
+            if (_properties.ClearFiltered) toBeDeletedFiles.Add(firstCjOutPath);
 
             // Gebruik CS-CityJSON-converter om features aan het maaiveld aan te passen (inclusief bounding box)
             var maaiveldOutPath = Path.Combine(this._properties.MaaiveldAdjustedFeaturesDirectory,
