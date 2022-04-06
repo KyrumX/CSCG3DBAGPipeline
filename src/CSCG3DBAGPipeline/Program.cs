@@ -1,9 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using CommandLine;
-using CSCG3DBAGPipeline;
 using CSCG3DBAGPipeline.tileset;
 using Serilog;
+
+namespace CSCG3DBAGPipeline;
 
 class Program
 {
