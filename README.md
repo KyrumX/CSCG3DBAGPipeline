@@ -11,7 +11,8 @@
   - [glTF-Transform/CLI](https://github.com/donmccurdy/glTF-Transform), ontwikkeld door Don McCurdy en bijdragers;
   - [b3dm-tile-cs](https://github.com/bertt/b3dm-tile-cs), ontwikkeld door Bert Temme;
   - [CliWrap](https://github.com/Tyrrrz/CliWrap), ontwikkeld door Oleksii Holub en bijgragers;
-  - [Command Line](https://github.com/commandlineparser/commandline), door Eric Newton en bijdragers.
+  - [Command Line](https://github.com/commandlineparser/commandline), door Eric Newton en bijdragers;
+  - [Serilog](https://serilog.net/).
 
 # Gebruik
 
