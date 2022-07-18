@@ -1,4 +1,6 @@
-﻿using CommandLine;
+﻿#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+using CommandLine;
 
 namespace CSCG3DBAGPipeline;
 
@@ -140,7 +142,11 @@ public class PipelineOptions
             _b3dmDirectory = value;
         }
     }
-    
+
+    // The filename for the B3DM files, including extension.
+    [Option("outname", Required = false, Default = "{0}.b3dm", HelpText = "The name used for the B3DM file, defaults to: {0}.b3dm where {0} is replaced with the tile id. For custom names use `{0}` where the tile number should be. Do also include the extension! Example: `myCustomB3dmFileName{0}.b3dm`")]
+    public string FileOutName { get; set; }
+
     // Whether or not a download (from 3D BAG) should be deleted after having been processed.
     [Option("cleardownload", Required = false, Default = true, HelpText = "Whether or not a download should be deleted after having been processed.")]
     public bool ClearDownload { get; init; }
@@ -157,3 +163,5 @@ public class PipelineOptions
     [Option("cleardraco", Required = false, Default = true, HelpText = "Whether or not a Draco compressed GLB should be deleted after having been processed.")]
     public bool ClearDraco { get; init; }
 }
+
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
