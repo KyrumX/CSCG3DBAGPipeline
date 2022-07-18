@@ -106,7 +106,7 @@ public class Pipeline
 
             // Gebruik B3DM Tile CS om ons glTF bestand in een B3DM te zetten
             var b3dmOutPath = Path.Combine(this._properties.B3dmDirectory,
-                String.Format("{0}.b3dm", tile.ToString()));
+                String.Format(_properties.FileOutName, tile.ToString()));
             bool b3dmRes = this.ExecuteStep(this._glbProcessor.ToBatched3DModel,glbDracoOutPath, b3dmOutPath);
 
             if (b3dmRes == false) goto SkipAndLog;
